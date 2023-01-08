@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <style>
+    /* body{ */
+    /* background-color: black; */
+    /* } */
+    input {
+      border-radius: 5px;
+      background-color: blueviolet;
+      /* border: 1px solid green; */
+      padding: 7px;
+      /* text-align: center; */
+      color: beige;
+    }
+    output {
+      width: 100%;
+      min-height: 150px;
+      display: flex;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      gap: 15px;
+      position: relative;
+      border-radius: 5px;
+    }
+
+    output .image {
+      height: 150px;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      position: relative;
+    }
+
+    output .image img {
+      height: 100%;
+      width: 100%;
+    }
+
+    output .image span {
+      position: absolute;
+      top: -4px;
+      right: 4px;
+      cursor: pointer;
+      font-size: 22px;
+      color: white;
+    }
+    del {
+      position: absolute;
+      top: -4px;
+      right: 4px;
+      cursor: pointer;
+      font-size: 22px;
+    }
+    /* output .image span:hover { */
+    /* opacity: 0.8; */
+    /* } */
+
+    output .span--hidden {
+      visibility: hidden;
+    }
+  </style>
+  <body>
+    <input
+      type="file"
+      accept="image/jpeg, image/png, image/jpg"
+      multiple
+      name="img[]"
+    />
+    <input type="file" accept="video/*" id="vid" multiple />
+    <hr />
+    <video controls id="vid-tag"></video>
+    <output></output>
+  </body>
+</html>
+<script>
+  const input = document.querySelector("input");
+  const output = document.querySelector("output");
+  let imageArray = [];
+  input.addEventListener("change", function () {
+    const file = input.files;
+    imageArray.push(file[0]);
+    displayimg();
+  });
+  function displayimg() {
+    let images = "";
+    imageArray.forEach((image, index) => {
+      images += `<div class="image">
+                <img src="${URL.createObjectURL(image)}" alt="image">
+                <span onclick="deleteImage(${index})">&times;</span>
+              </div>`;
+    });
+    output.innerHTML = images;
+  }
+
+  function deleteImage(index) {
+    if (!index) {
+      input.value = "";
+    }
+
+    imageArray.splice(index, 1);
+    displayimg();
+  }
+  const invid = document.getElementById("vid");
+  const video = document.getElementById("vid-tag");
+  const videoSource = document.createElement("source");
+
+  invid.addEventListener("change", function () {
+    const files = this.files || [];
+
+    if (!files.length) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+      videoSource.setAttribute("src", e.target.result);
+      video.appendChild(videoSource);
+      video.load();
+      video.play();
+    };
+
+    reader.onprogress = function (e) {
+      console.log("progress: ", Math.round((e.loaded * 100) / e.total));
+    };
+
+    reader.readAsDataURL(files[0]);
+  });
+  var del = document.createElement("button");
+  del.innerText = "X";
+  del.style.backgroundColor = "red";
+  del.style.width = "20px";
+  del.style.height = "20px";
+  del.addEventListener("click", function () {
+    invid.value = null;
+    video.remove();
+  });
+  output.append(del);
+</script>
